@@ -7,5 +7,5 @@ sonatype nexus repository manager OSS for yunohost
 
 You can either :
 
-* Install from the Yunohost Admin web interface, by providing this URL: `https://github.com/selamanse/rocketchat_ynh`
-* Install from the command-line: `yunohost app install https://github.com/selamanse/rocketchat_ynh`
+* Install from the Yunohost Admin web interface, by providing this URL: `https://github.com/selamanse/nexusoss_ynh`
+* Install from the command-line: `yunohost app install https://github.com/selamanse/nexusoss_ynh`
