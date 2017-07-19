@@ -37,6 +37,11 @@ if [[ ! $? -eq 0 ]]; then
   ynh_die "domain not available"
 fi
 
+final_path="/var/www/$app"
+[[ -d $final_path ]] && ynh_die \
+"The destination directory '$final_path' already exists.\
+ You should safely delete it before installing this app."
+
 # Save specific settings
 ynh_app_setting_set $app is_public $is_public
 
@@ -48,11 +53,6 @@ sudo apt-get update
 sudo apt-get install -y oracle-java8-installer
 
 # Create destination
-final_path="/var/www/$app"
-[[ -d $final_path ]] && ynh_die \
-"The destination directory '$final_path' already exists.\
- You should safely delete it before installing this app."
-
 ynh_app_setting_set $app final_path $final_path
 sudo mkdir -p $final_path
 
