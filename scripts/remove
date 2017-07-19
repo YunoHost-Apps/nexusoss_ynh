@@ -1,0 +1,24 @@
+#!/bin/bash
+set -u
+
+#=================================================
+# GENERIC START
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source /usr/share/yunohost/helpers
+
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_get $app domain)
+final_path=$(ynh_app_setting_get $app final_path)
+
+sudo systemctl stop nexus
+
+sudo rm -rf $final_path
+sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
+sudo rm -f /etc/systemd/system/nexus.service
+
+sudo systemctl daemon-reload
+sudo systemctl reload nginx
