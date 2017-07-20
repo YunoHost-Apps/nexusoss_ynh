@@ -15,6 +15,7 @@ domain=$(ynh_app_setting_get $app domain)
 final_path=$(ynh_app_setting_get $app final_path)
 
 sudo systemctl stop nexus
+sudo systemctl disable nexus.service
 
 sudo rm -rf $final_path
 sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf

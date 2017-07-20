@@ -68,6 +68,7 @@ sed -i "s@#FINAL_PATH#@$final_path@g"  ../conf/nexus.service
 sed -i "s@#VERSION#@$NEXUS_VERSION@g"  ../conf/nexus.service
 sudo cp ../conf/nexus.service /etc/systemd/system/
 sudo systemctl daemon-reload
+sudo systemctl enable nexus
 
 # Copy and set nginx configuration
 nginx_conf="/etc/nginx/conf.d/${domain}.d/${app}.conf"
@@ -92,12 +93,6 @@ sed -i "s@#PATH#@${path:-/}@g" ../conf/nexus.properties
 sudo mkdir -p $final_path/sonatype-work/nexus3/etc
 sudo cp ../conf/nexus.properties $final_path/sonatype-work/nexus3/etc/nexus.properties
 
-# preconfigured yunohost ldap via internal restore mechanism
-# see --> https://books.sonatype.com/nexus-book/reference3/backup.html#backup-restore
-sudo rm -rf $final_path/sonatype-work/nexus3/db
-sudo mkdir -p $final_path/sonatype-work/nexus3/db/backup
-sudo cp ../conf/config-2017-07-20-11-45-00.bak $final_path/sonatype-work/nexus3/db/backup/
-
 # Create user
 sudo useradd -d "$final_path" -M nexus
 sudo chown -R nexus: $final_path
@@ -108,8 +103,21 @@ then
 	ynh_app_setting_set "$app" skipped_uris "/"
 fi
 
-sudo systemctl start nexus.service
-sudo systemctl enable nexus.service
+# first init start
+sudo systemctl start nexus
+# wait until init finished
+timeout 5 grep -q 'Started Sonatype Nexus' <(tail -n +0 -f $final_path/sonatype-work/nexus3/log/nexus.log)
+
+# preconfigured yunohost ldap via internal restore mechanism
+# see --> https://books.sonatype.com/nexus-book/reference3/backup.html#backup-restore
+sudo rm -rf $final_path/sonatype-work/nexus3/db/config
+sudo mkdir -p $final_path/sonatype-work/nexus3/db/backup
+sudo cp ../conf/config-2017-07-20-11-45-00.bak $final_path/sonatype-work/nexus3/db/backup/
+
+# restart to restore config
+sudo systemctl restart nexus
+# wait until init finished
+timeout 5 grep -q 'Started Sonatype Nexus' <(tail -n +0 -f $final_path/sonatype-work/nexus3/log/nexus.log)
 
 # add to services
 sudo yunohost service add nexus -l $final_path/sonatype-work/nexus3/log/nexus.log
