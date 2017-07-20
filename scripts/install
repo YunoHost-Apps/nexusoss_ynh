@@ -65,6 +65,7 @@ sudo mkdir -p $final_path
 
 # Copy and set systemd configuration
 sed -i "s@#FINAL_PATH#@$final_path@g"  ../conf/nexus.service
+sed -i "s@#VERSION#@$NEXUS_VERSION@g"  ../conf/nexus.service
 sudo cp ../conf/nexus.service /etc/systemd/system/
 sudo systemctl daemon-reload
 

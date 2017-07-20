@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=#FINAL_PATH#/nexus/bin/nexus start
-ExecStop=#FINAL_PATH#/nexus/bin/nexus stop
+ExecStart=#FINAL_PATH#/nexus-#VERSION#/bin/nexus start
+ExecStop=#FINAL_PATH#/nexus-#VERSION#/bin/nexus stop
 User=nexus
 Restart=on-abort
 Environment="JAVA_HOME=/usr/lib/jvm/java-8-oracle"
