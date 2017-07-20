@@ -110,14 +110,20 @@ timeout 90 grep -q 'Started Sonatype Nexus' <(tail -n +0 -F $final_path/sonatype
 
 # preconfigured yunohost ldap via internal restore mechanism
 # see --> https://books.sonatype.com/nexus-book/reference3/backup.html#backup-restore
+sudo rm -rf $final_path/sonatype-work/nexus3/db/accesslog
+sudo rm -rf $final_path/sonatype-work/nexus3/db/analytics
+sudo rm -rf $final_path/sonatype-work/nexus3/db/audit
+sudo rm -rf $final_path/sonatype-work/nexus3/db/component
 sudo rm -rf $final_path/sonatype-work/nexus3/db/config
+sudo rm -rf $final_path/sonatype-work/nexus3/db/security
+
 sudo mkdir -p $final_path/sonatype-work/nexus3/db/backup
-sudo cp ../conf/config-2017-07-20-11-45-00.bak $final_path/sonatype-work/nexus3/db/backup/
+sudo cp ../conf/*.bak $final_path/sonatype-work/nexus3/db/backup/
 
 # restart to restore config
 sudo systemctl restart nexus
 # wait until init finished
-timeout 90 grep -q 'Started Sonatype Nexus' <(tail -n +0 -F $final_path/sonatype-work/nexus3/log/nexus.log)
+timeout 90 grep -q 'Started Sonatype Nexus' <(tail -F $final_path/sonatype-work/nexus3/log/nexus.log)
 
 # add to services
 sudo yunohost service add nexus -l $final_path/sonatype-work/nexus3/log/nexus.log
