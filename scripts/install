@@ -87,12 +87,12 @@ sudo curl -s -L -o $final_path/$DOWNLOAD_FILE $DOWNLOAD_URL
 sudo tar -xzf $final_path/$DOWNLOAD_FILE -C $final_path
 
 # configure nexus properties
-sed "s@# application-port=8081@application-port=$port@g" $final_path/sonatype-work/nexus3/etc/nexus.properties
-sed "s@# nexus-context-path=/@nexus-context-path=$path@g" $final_path/sonatype-work/nexus3/etc/nexus.properties
+sed -i "s@#PORT#@${port}@g" ../conf/nexus.properties
+sed -i "s@#PATH#@${path:-/}@g" ../conf/nexus.properties
+sudo cp ../conf/nexus.properties $final_path/sonatype-work/nexus3/etc/nexus.properties
 
 # preconfigured yunohost ldap via internal restore mechanism
 # see --> https://books.sonatype.com/nexus-book/reference3/backup.html#backup-restore
-sudo mkdir -p $final_path/sonatype-work/nexus3/db/backup/
 sudo rm -rf $final_path/sonatype-work/nexus3/db/config
 sudo cp ../conf/config-2017-07-20-11-45-00.bak $final_path/sonatype-work/nexus3/db/backup/
 
