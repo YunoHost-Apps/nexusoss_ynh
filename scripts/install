@@ -119,8 +119,8 @@ sudo rm -rf $final_path/sonatype-work/nexus3/db/component
 sudo rm -rf $final_path/sonatype-work/nexus3/db/config
 sudo rm -rf $final_path/sonatype-work/nexus3/db/security
 
-sudo mkdir -p $final_path/sonatype-work/nexus3/db/backup
-sudo cp ../conf/bak/*.bak $final_path/sonatype-work/nexus3/db/backup/
+sudo mkdir -p $final_path/sonatype-work/nexus3/backup
+sudo cp ../conf/bak/*.bak $final_path/sonatype-work/nexus3/backup/
 
 # restart to restore config
 sudo systemctl start nexus
