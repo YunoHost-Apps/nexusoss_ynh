@@ -19,6 +19,7 @@ sudo systemctl stop nexus
 sudo rm -rf $final_path
 sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
 sudo rm -f /etc/systemd/system/nexus.service
+sudo userdel -r nexus
 
 sudo systemctl daemon-reload
 sudo systemctl reload nginx
