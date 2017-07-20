@@ -94,8 +94,8 @@ sudo cp ../conf/nexus.properties $final_path/sonatype-work/nexus3/etc/nexus.prop
 
 # preconfigured yunohost ldap via internal restore mechanism
 # see --> https://books.sonatype.com/nexus-book/reference3/backup.html#backup-restore
-sudo mkdir -p $final_path/sonatype-work/nexus3/db/backup/
-sudo rm -rf $final_path/sonatype-work/nexus3/db/config
+sudo rm -rf $final_path/sonatype-work/nexus3/db
+sudo mkdir -p $final_path/sonatype-work/nexus3/db/backup
 sudo cp ../conf/config-2017-07-20-11-45-00.bak $final_path/sonatype-work/nexus3/db/backup/
 
 # Create user
