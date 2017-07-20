@@ -3,6 +3,9 @@
 
 sonatype nexus repository manager OSS for yunohost
 
+WORK IN PROGRESS! Do not use as production env.
+Removal of app removes the sonatype-work dir aswell --> backup manually.
+
 ## Install with
 
 You can either :
