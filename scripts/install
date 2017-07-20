@@ -37,7 +37,7 @@ if [[ ! $? -eq 0 ]]; then
   ynh_die "domain not available"
 fi
 
-final_path="/var/www/$app"
+final_path="/var/lib/$app"
 [[ -d $final_path ]] && ynh_die \
 "The destination directory '$final_path' already exists.\
  You should safely delete it before installing this app."
@@ -50,6 +50,12 @@ sudo apt-get update
 sudo apt-get install -y software-properties-common
 sudo add-apt-repository "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main"
 sudo apt-get update
+
+# accept license to achieve silent install of oracle java (https://askubuntu.com/a/190674)
+echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
+echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
+
+# install oracle 8 java
 sudo apt-get install -y oracle-java8-installer
 
 # Create destination
@@ -78,6 +84,8 @@ echo "Downloading $DOWNLOAD_FILE from $DOWNLOAD_URL."
 sudo curl -s -L -o $final_path/$DOWNLOAD_FILE $DOWNLOAD_URL
 sudo tar -xzf $final_path/$DOWNLOAD_FILE -C $final_path
 
+# Create user
+sudo useradd -d "$final_path" -M nexus
 sudo chown -R nexus: $final_path
 
 sudo systemctl reload nginx
