@@ -14,8 +14,12 @@ app=$YNH_APP_INSTANCE_NAME
 domain=$(ynh_app_setting_get $app domain)
 final_path=$(ynh_app_setting_get $app final_path)
 
+# unregister from yunohost services
+sudo yunohost service remove $app
+
+# stop & disable service
 sudo systemctl stop nexus
-sudo systemctl disable nexus.service
+sudo systemctl disable nexus
 
 sudo rm -rf $final_path
 sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf

@@ -27,6 +27,7 @@ language=$YNH_APP_ARG_LANG
 
 app=$YNH_APP_INSTANCE_NAME
 port=$(ynh_find_port 8081)
+serviceuser=nexus
 
 NEXUS_VERSION=3.4.0-02
 
@@ -43,9 +44,16 @@ final_path="/var/lib/$app"
 "The destination directory '$final_path' already exists.\
  You should safely delete it before installing this app."
 
+# Define app's data directory
+APPDIR="${final_path}/nexus-$NEXUS_VERSION"
+DATADIR="${final_path}/sonatype-work"
+
 # Save specific settings
 ynh_app_setting_set $app final_path $final_path
 ynh_app_setting_set $app is_public $is_public
+ynh_app_setting_set $app datadir $DATADIR
+ynh_app_setting_set $app appdir $APPDIR
+ynh_app_setting_set $app serviceuser $serviceuser
 
 #Install dependencies
 sudo apt-get update
@@ -60,12 +68,11 @@ echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-se
 # install oracle 8 java
 sudo apt-get install -y oracle-java8-installer
 
-# Create destination
-sudo mkdir -p $final_path
+# Create destinations
+sudo mkdir -p $final_path $DATADIR
 
 # Copy and set systemd configuration
-sed -i "s@#FINAL_PATH#@$final_path@g"  ../conf/nexus.service
-sed -i "s@#VERSION#@$NEXUS_VERSION@g"  ../conf/nexus.service
+sed -i "s@#APPDIR#@$APPDIR@g"  ../conf/nexus.service
 sudo cp ../conf/nexus.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable nexus
@@ -85,17 +92,20 @@ DOWNLOAD_URL=http://download.sonatype.com/nexus/3/nexus-$NEXUS_VERSION-unix.tar.
 DOWNLOAD_FILE=nexus-$NEXUS_VERSION-unix.tar.gz
 echo "Downloading $DOWNLOAD_FILE from $DOWNLOAD_URL."
 sudo curl -s -L -o $final_path/$DOWNLOAD_FILE $DOWNLOAD_URL
-sudo tar -xzf $final_path/$DOWNLOAD_FILE -C $final_path
+sudo tar -xzf $final_path/$DOWNLOAD_FILE -C $APPDIR --strip-components=1 nexus-$NEXUS_VERSION
+sudo tar -xzf $final_path/$DOWNLOAD_FILE -C $DATADIR --strip-components=1 sonatype-work
+sudo rm -f $final_path/$DOWNLOAD_FILE
 
 # configure nexus properties
 sed -i "s@#PORT#@${port}@g" ../conf/nexus.properties
 sed -i "s@#PATH#@${path:-/}@g" ../conf/nexus.properties
-sudo mkdir -p $final_path/sonatype-work/nexus3/etc
-sudo cp ../conf/nexus.properties $final_path/sonatype-work/nexus3/etc/nexus.properties
+sudo mkdir -p $DATADIR/nexus3/etc
+sudo cp ../conf/nexus.properties $DATADIR/nexus3/etc/nexus.properties
 
-# Create user
-sudo useradd -d "$final_path" -M nexus
-sudo chown -R nexus: $final_path
+# Create user and chown paths
+sudo useradd -d "$final_path" -M $serviceuser
+sudo chown -R $serviceuser: $final_path
+sudo chown -R $serviceuser: $DATADIR
 
 sudo systemctl reload nginx
 if [ "$is_public" = "Yes" ];
@@ -106,28 +116,28 @@ fi
 # first init start
 sudo systemctl start nexus
 # wait until init finished
-timeout 90 grep -q 'Started Sonatype Nexus' <(tail -n +0 -F $final_path/sonatype-work/nexus3/log/nexus.log)
+timeout 90 grep -q 'Started Sonatype Nexus' <(tail -n +0 -F $DATADIR/nexus3/log/nexus.log)
 
 sudo systemctl stop nexus
 
 # preconfigured yunohost ldap via internal restore mechanism
 # see --> https://books.sonatype.com/nexus-book/reference3/backup.html#backup-restore
-sudo rm -rf $final_path/sonatype-work/nexus3/db/accesslog
-sudo rm -rf $final_path/sonatype-work/nexus3/db/analytics
-sudo rm -rf $final_path/sonatype-work/nexus3/db/audit
-sudo rm -rf $final_path/sonatype-work/nexus3/db/component
-sudo rm -rf $final_path/sonatype-work/nexus3/db/config
-sudo rm -rf $final_path/sonatype-work/nexus3/db/security
+sudo rm -rf $DATADIR/nexus3/db/accesslog
+sudo rm -rf $DATADIR/nexus3/db/analytics
+sudo rm -rf $DATADIR/nexus3/db/audit
+sudo rm -rf $DATADIR/nexus3/db/component
+sudo rm -rf $DATADIR/nexus3/db/config
+sudo rm -rf $DATADIR/nexus3/db/security
 
-sudo mkdir -p $final_path/sonatype-work/nexus3/backup
-sudo cp ../conf/bak/*.bak $final_path/sonatype-work/nexus3/backup/
+sudo mkdir -p $DATADIR/nexus3/backup
+sudo cp ../conf/bak/*.bak $DATADIR/nexus3/backup/
 
 # restart to restore config
 sudo systemctl start nexus
 # wait until init finished
-timeout 90 grep -q 'Started Sonatype Nexus' <(tail -F $final_path/sonatype-work/nexus3/log/nexus.log)
+timeout 90 grep -q 'Started Sonatype Nexus' <(tail -F $DATADIR/nexus3/log/nexus.log)
 
 # add to services
-sudo yunohost service add nexus -l $final_path/sonatype-work/nexus3/log/nexus.log
+sudo yunohost service add nexus -l $DATADIR/nexus3/log/nexus.log
 
 sudo yunohost app ssowatconf

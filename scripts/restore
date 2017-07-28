@@ -2,6 +2,12 @@
 set -eu
 
 #=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
+
+source /usr/share/yunohost/helpers
+
+#=================================================
 # GENERIC START
 #=================================================
 # MANAGE SCRIPT FAILURE
@@ -11,30 +17,32 @@ set -eu
 ynh_abort_if_errors
 
 #=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
-source /usr/share/yunohost/helpers
-
-#=================================================
 # LOAD SETTINGS
 #=================================================
 
 app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get $app domain)
+path=$(ynh_app_setting_get $app path)
 path_url=$(ynh_app_setting_get $app path)
 final_path=$(ynh_app_setting_get $app final_path)
-db_name=$(ynh_app_setting_get $app db_name)
+APPDIR=$(ynh_app_setting_get $app appdir)
+DATADIR=$(ynh_app_setting_get $app datadir)
+serviceuser=$(ynh_app_setting_get $app serviceuser)
 
-#=================================================
-# CHECK IF THE APP CAN BE RESTORED
-#=================================================
+# Check domain/path availability
+sudo yunohost app checkurl "${domain}${path}" -a "$app" || ynh_die
 
-sudo yunohost app checkurl "${domain}${path_url}" -a "$app" \
-	|| ynh_die "Path not available: ${domain}${path_url}"
-test ! -d $final_path \
-	|| ynh_die "There is already a directory: $final_path "
+# Check destination directory
+[[ -d $final_path ]] && ynh_die \
+"The destination directory '$final_path' already exists.\
+ You should safely delete it before restoring this app."
+
+# Create destination
+sudo mkdir -p $appdir $datadir
+
+# Create user
+sudo useradd -d "$appdir" -M $serviceuser
 
 #=================================================
 # STANDARD RESTORATION STEPS
@@ -42,10 +50,26 @@ test ! -d $final_path \
 # RESTORE THE NGINX CONFIGURATION
 #=================================================
 
-ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
+sudo cp -a "conf/nginx" "/etc/nginx/conf.d/$domain.d/$app.conf"
+sudo systemctl reload nginx
+
+#=================================================
+# RESTORE THE SYSTEMD CONFIGURATION
+#=================================================
+sudo cp -a "conf/service" "/etc/systemd/system/$app.service"
+sudo systemctl daemon-reload
+sudo systemctl enable $app
 
 #=================================================
 # RESTORE THE APP MAIN DIR
 #=================================================
 
-ynh_restore_file "$final_path"
+sudo tar -xzf ./appdir.gtar -C $appdir
+sudo tar -xzf ./datadir.gtar -C $datadir
+sudo chown -R $serviceuser: $final_path
+
+#=================================================
+# START APP RELATED SERVICES
+#=================================================
+
+sudo systemctl start $app

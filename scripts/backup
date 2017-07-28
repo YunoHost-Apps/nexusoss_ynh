@@ -2,15 +2,6 @@
 set -eu
 
 #=================================================
-# GENERIC START
-#=================================================
-# MANAGE SCRIPT FAILURE
-#=================================================
-
-# Exit on command errors and treat access to unset variables as an error
-ynh_abort_if_errors
-
-#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
@@ -24,7 +15,8 @@ app=$YNH_APP_INSTANCE_NAME
 
 final_path=$(ynh_app_setting_get $app final_path)
 domain=$(ynh_app_setting_get $app domain)
-db_name=$(ynh_app_setting_get $app db_name)
+APPDIR=$(ynh_app_setting_get $app appdir)
+DATADIR=$(ynh_app_setting_get $app datadir)
 
 #=================================================
 # STANDARD BACKUP STEPS
@@ -32,10 +24,23 @@ db_name=$(ynh_app_setting_get $app db_name)
 # BACKUP THE APP MAIN DIR
 #=================================================
 
-ynh_backup "$final_path" "${backup_dir}$final_path"
+workdir=$(pwd)
+cd $APPDIR
+tar -czf $workdir/appdir.gtar .
+cd $workdir
+ynh_backup ./appdir.gtar
 
 #=================================================
-# BACKUP THE NGINX CONFIGURATION
+# BACKUP THE APP DATA DIR
 #=================================================
 
-ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf" "${backup_dir}/etc/nginx/conf.d/$domain.d/$app.conf"
+cd $DATADIR
+tar -czf $workdir/datadir.gtar .
+ynh_backup ./datadir.gtar
+
+#=================================================
+# BACKUP THE CONFIGURATION
+#=================================================
+
+ynh_backup "/etc/systemd/system/$app.service" "conf/service"
+ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf" "conf/nginx"
