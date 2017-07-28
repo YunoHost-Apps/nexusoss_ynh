@@ -26,8 +26,8 @@ domain=$(ynh_app_setting_get $app domain)
 path=$(ynh_app_setting_get $app path)
 path_url=$(ynh_app_setting_get $app path)
 final_path=$(ynh_app_setting_get $app final_path)
-APPDIR=$(ynh_app_setting_get $app appdir)
-DATADIR=$(ynh_app_setting_get $app datadir)
+appdir=$(ynh_app_setting_get $app appdir)
+datadir=$(ynh_app_setting_get $app datadir)
 serviceuser=$(ynh_app_setting_get $app serviceuser)
 
 # Check domain/path availability
