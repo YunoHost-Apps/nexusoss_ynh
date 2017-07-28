@@ -15,7 +15,7 @@ domain=$(ynh_app_setting_get $app domain)
 final_path=$(ynh_app_setting_get $app final_path)
 
 # unregister from yunohost services
-sudo yunohost service remove $app
+sudo yunohost service remove nexus
 
 # stop & disable service
 sudo systemctl stop nexus
