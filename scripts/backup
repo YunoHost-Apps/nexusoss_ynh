@@ -43,5 +43,5 @@ ynh_backup ./datadir.gtar
 # BACKUP THE CONFIGURATION
 #=================================================
 
-ynh_backup "/etc/systemd/system/$app.service" "conf/service"
+ynh_backup "/etc/systemd/system/nexus.service" "conf/service"
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf" "conf/nginx"

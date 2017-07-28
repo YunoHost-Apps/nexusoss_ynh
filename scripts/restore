@@ -56,7 +56,7 @@ sudo systemctl reload nginx
 #=================================================
 # RESTORE THE SYSTEMD CONFIGURATION
 #=================================================
-sudo cp -a "conf/service" "/etc/systemd/system/$app.service"
+sudo cp -a "conf/service" "/etc/systemd/system/nexus.service"
 sudo systemctl daemon-reload
 sudo systemctl enable $app
 
