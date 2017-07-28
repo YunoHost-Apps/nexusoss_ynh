@@ -36,6 +36,7 @@ ynh_backup ./appdir.gtar
 
 cd $DATADIR
 tar -czf $workdir/datadir.gtar .
+cd $workdir
 ynh_backup ./datadir.gtar
 
 #=================================================
