@@ -58,7 +58,7 @@ sudo systemctl reload nginx
 #=================================================
 sudo cp -a "conf/service" "/etc/systemd/system/nexus.service"
 sudo systemctl daemon-reload
-sudo systemctl enable $app
+sudo systemctl enable nexus
 
 #=================================================
 # RESTORE THE APP MAIN DIR
@@ -72,4 +72,4 @@ sudo chown -R $serviceuser: $final_path
 # START APP RELATED SERVICES
 #=================================================
 
-sudo systemctl start $app
+sudo systemctl start nexus
