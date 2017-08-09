@@ -3,6 +3,8 @@
 
 sonatype nexus repository manager OSS for yunohost
 
+[![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=nexusoss)
+
 ## Installation
 
 You can either :
