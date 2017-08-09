@@ -29,3 +29,8 @@ Backup stores:
 - nginx configuration
 - systemd service configuration
 
+## Links
+
+ * Report a bug: https://dev.yunohost.org/projects/apps/issues
+ * Nextcloud website: https://www.sonatype.com/nexus-repository-oss
+ * YunoHost website: https://yunohost.org/
