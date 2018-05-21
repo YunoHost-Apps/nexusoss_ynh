@@ -3,7 +3,7 @@
 
 sonatype nexus repository manager OSS for yunohost
 
-[![Install Nextcloud with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=nexusoss)
+[![Install Nexus with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=nexusoss)
 
 ## Installation
 
@@ -31,6 +31,6 @@ Backup stores:
 
 ## Links
 
- * Report a bug: https://dev.yunohost.org/projects/apps/issues
+ * Report a bug: [Issues](/../../issues)
  * Nextcloud website: https://www.sonatype.com/nexus-repository-oss
  * YunoHost website: https://yunohost.org/
