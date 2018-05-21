@@ -6,7 +6,7 @@
         "en": "sonatype nexus repository manager OSS"
     },
     "url": "https://github.com/selamanse/nexusoss_ynh",
-    "license": "GNU GPLv3",
+    "license": "GPL-3.0",
     "version": "3.11.0-01",
     "maintainer": {
         "name": "selamanse",
