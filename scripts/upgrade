@@ -1,12 +1,16 @@
 #!/bin/bash
-set -eu
 
 #=================================================
 # GENERIC START
 #=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
 
+# IMPORT GENERIC HELPERS
 source /usr/share/yunohost/helpers
+
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
+
+# Load common variables and helpers
+source ./_common.sh
 
 # tbd...

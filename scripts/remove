@@ -1,30 +1,40 @@
 #!/bin/bash
-set -u
 
 #=================================================
 # GENERIC START
 #=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
 
+# IMPORT GENERIC HELPERS
 source /usr/share/yunohost/helpers
 
-app=$YNH_APP_INSTANCE_NAME
+# Load common variables and helpers
+source ./experimental_helper.sh
+source ./_common.sh
 
-domain=$(ynh_app_setting_get $app domain)
-final_path=$(ynh_app_setting_get $app final_path)
+#=================================================
+# STANDARD REMOVE
+#=================================================
 
-# unregister from yunohost services
-sudo yunohost service remove nexus
+# Stop gogs
+systemctl stop "$app".service
+# Retrieve domain from app settings
+domain=$(ynh_app_setting_get "$app" domain)
 
-# stop & disable service
-sudo systemctl stop nexus
-sudo systemctl disable nexus
+# Delete app directory and configurations
+ynh_secure_remove "$final_path"
+ynh_secure_remove "$DATADIR"
 
-sudo rm -rf $final_path
-sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
-sudo rm -f /etc/systemd/system/nexus.service
-sudo userdel -r nexus
+# Remove the app-specific logrotate config
+ynh_remove_logrotate
 
-sudo systemctl daemon-reload
-sudo systemctl reload nginx
+# Remove nginx config
+ynh_remove_nginx_config
+
+# Remove gogs user and data
+ynh_system_user_delete $appuser
+
+# Remove init script
+ynh_remove_systemd_config
+
+# Remove monitor
+yunohost service remove "$app"
